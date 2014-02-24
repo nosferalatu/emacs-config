@@ -645,61 +645,13 @@ point."
   "Replace the preceding sexp with its value."
   (interactive)
   (backward-kill-sexp)
-  (condition-case nil
+  (condition-case 
       (prin1 (eval (read (current-kill 0)))
              (current-buffer))
     (error (message "Invalid expression")
            (insert (current-kill 0)))))
 
-;;
-(defun spotify-pause-play-toggle()
-  (interactive)
-  (save-excursion
-    (find-file "c:/spotifycommand.py")
-    (erase-buffer)
-    (insert 
-"import win32api\n"
-"import win32gui\n"
-"spotify_hwnd = win32gui.FindWindow(\"SpotifyMainWindow\", None)\n"
-"win32gui.SendMessage(spotify_hwnd, 0x0319, 0, 917504)\n"
-    )
-    (save-buffer)
-    (kill-buffer)
-    (shell-command "c:/spotifycommand.py")))
-
-(global-set-key (kbd "C-M-<pause>") 'spotify-pause-play-toggle)
-
-;;
-(defun spotify-next()
-  (interactive)
-  (save-excursion
-    (find-file "c:/spotifycommand.py")
-    (erase-buffer)
-    (insert 
-"import win32api\n"
-"import win32gui\n"
-"spotify_hwnd = win32gui.FindWindow(\"SpotifyMainWindow\", None)\n"
-"win32gui.SendMessage(spotify_hwnd, 0x0319, 0, 720896)\n"
-    )
-    (save-buffer)
-    (kill-buffer)
-    (shell-command "c:/spotifycommand.py")))
-
-;;
-(defun spotify-prev()
-  (interactive)
-  (save-excursion
-    (find-file "c:/spotifycommand.py")
-    (erase-buffer)
-    (insert 
-"import win32api\n"
-"import win32gui\n"
-"spotify_hwnd = win32gui.FindWindow(\"SpotifyMainWindow\", None)\n"
-"win32gui.SendMessage(spotify_hwnd, 0x0319, 0, 786432)\n"
-    )
-    (save-buffer)
-    (kill-buffer)
-    (shell-command "c:/spotifycommand.py")))
+(load "spotify.el")
 
 ;; Are you really sure you want to exit?
 (defun ask-before-closing ()
