@@ -349,7 +349,5 @@ point."
 ;; Final steps: Load local.el if it exists, and then create and switch to buffer *default*.
 ;; Local.el can contain any computer-specific configuration (it's in the .gitignore list).
 (load "local.el" t)
-
-;; Create a new buffer named *default* and switch to it
 (generate-new-buffer "*default*")
 (switch-to-buffer "*default*")
