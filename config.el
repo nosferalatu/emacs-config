@@ -18,7 +18,8 @@
 (require 'cl)
 
 (add-to-list 'custom-theme-load-path "c:/emacs/site-lisp")
-(add-to-list 'custom-theme-load-path "c:/emacs/site-lisp/solarized")
+(add-to-list 'custom-theme-load-path "c:/emacs/site-lisp/thirdparty")
+(add-to-list 'custom-theme-load-path "c:/emacs/site-lisp/thirdparty/solarized")
 (setq solarized-broken-srgb t)
 ;;(load-theme 'zenburn t)
 ;;(load-theme 'solarized-dark t)
