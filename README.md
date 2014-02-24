@@ -8,5 +8,7 @@ This repository is meant to be in the Emacs site-lisp directory. I like all of m
 that runs config code.
 
 To set this up, download Emacs, cd into its site-lisp directory, and clone the repo:
-  cd c:\emacs\site-lisp
-  git clone https://github.com/nosferalatu/emacs-config.git .
+```
+cd c:\emacs\site-lisp
+git clone https://github.com/nosferalatu/emacs-config.git .
+
