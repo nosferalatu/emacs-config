@@ -1,36 +1,19 @@
 ;; Configuration file. Either the .emacs or the emacs/site-lisp/site-start.el file should contain just the following:
 ;; (load "config.el")
 
+(require 'cl)
+
 ;; No splash screen. inhibit-splash-screen works if set in .emacs; initial-buffer-choice works if set when loading site-lisp.
 (setq inhibit-splash-screen t)
 (setq initial-buffer-choice 'none)
-
-;; Start Emacs server
-;; Suppress error "directory ~/.emacs.d/server is unsafe" on Windows
-;; http://stackoverflow.com/questions/885793/emacs-error-when-calling-server-start
-(require 'server)
-(when (and (>= emacs-major-version 23)
-           (equal window-system 'w32))
-  (defun server-ensure-safe-dir (dir) "Noop" t))
-(server-start)
-
-(require 'cl)
-
-(add-to-list 'custom-theme-load-path "c:/emacs/site-lisp")
-(add-to-list 'custom-theme-load-path "c:/emacs/site-lisp/thirdparty")
-(add-to-list 'custom-theme-load-path "c:/emacs/site-lisp/thirdparty/solarized")
-(setq solarized-broken-srgb t)
-;;(load-theme 'zenburn t)
-;;(load-theme 'solarized-dark t)
-;;(load-theme 'solarized-light t)
-(load-theme 'deeper-blue t)
 
 ;; Set font
 (set-default-font "Consolas-9")
 
 ;; Default placement and width/height of emacs window
 (set-frame-position (selected-frame) 0 0)
-;;(set-frame-size (selected-frame) 5000 20)
+(set-frame-width  (selected-frame) 154)
+(set-frame-height (selected-frame) 59)
 
 ;; Disable the menu bar (File, Edit, Options...) and tool bar (icons) and scroll bar (not useful)
 (menu-bar-mode -1)
@@ -40,10 +23,47 @@
 ;; Disable fringe (without scrollbar, no reason for fringe)
 (set-fringe-mode 0)
 
-(set-frame-width  (selected-frame) 154)
-(set-frame-height (selected-frame) 59)
+;; Change title bar to just "Emacs"
+(setq frame-title-format '("Emacs"))
+
+;; Smooth scrolling tips from http://stackoverflow.com/questions/3631220/fix-to-get-smooth-scrolling-in-emacs
+(setq redisplay-dont-pause t
+  scroll-step 1
+  scroll-conservatively 10000
+  scroll-preserve-screen-position 1)
+
+(line-number-mode 1)
+(column-number-mode 1)
+(display-time)
+
+(add-hook 'find-file-hooks 
+	  '(lambda ()
+	     (setq mode-line-buffer-identification 'buffer-file-truename)))
 
 (require 'w32-fullscreen)
+
+;; do not truncate long lines when window is split horizontally
+(defconst truncate-partial-width-windows nil)
+
+;; Theme
+(add-to-list 'custom-theme-load-path "c:/emacs/site-lisp")
+(add-to-list 'custom-theme-load-path "c:/emacs/site-lisp/thirdparty")
+(add-to-list 'custom-theme-load-path "c:/emacs/site-lisp/thirdparty/solarized")
+(setq solarized-broken-srgb t)
+;;(load-theme 'zenburn t)
+;;(load-theme 'solarized-dark t)
+;;(load-theme 'solarized-light t)
+(load-theme 'deeper-blue t)
+
+;; Start Emacs server
+;; Suppress error "directory ~/.emacs.d/server is unsafe" on Windows
+;; http://stackoverflow.com/questions/885793/emacs-error-when-calling-server-start
+(require 'server)
+(when (and (>= emacs-major-version 23)
+           (equal window-system 'w32))
+  (defun server-ensure-safe-dir (dir) "Noop" t))
+(or (server-running-p)
+    (server-start))
 
 ;; Set up cc-mode
 (require 'cc-mode)
@@ -79,9 +99,6 @@
                     (cons "\\.fx$" 'c++-mode)        ; HLSL
                     (cons "\\.lua$" 'lua-mode))      ; Lua
               auto-mode-alist))
-
-;; do not truncate long lines when window is split horizontally
-(defconst truncate-partial-width-windows nil)
 
 (defun repeat-commands nil
   (global-set-key "\e[193z" 'previous-cmplex-command)
@@ -192,12 +209,6 @@
 ;; Inhibit warning when loading large files
 (setq large-file-warning-threshold nil)
 
-;; Smooth scrolling tips from http://stackoverflow.com/questions/3631220/fix-to-get-smooth-scrolling-in-emacs
-(setq redisplay-dont-pause t
-  scroll-step 1
-  scroll-conservatively 10000
-  scroll-preserve-screen-position 1)
-
 ;; For PS2 VU Asm mode
 ;; (require 'vuasm-mode)
 
@@ -219,21 +230,9 @@
 	  (function (lambda ()
 		      (setq c-recognize-knr-p nil))))
 
-; If the time is not displayed on the modeline, then the entire .emacs
-; file was not read
-(display-time)
-
 ; Display full path name if appropriate on mode line.
-(add-hook 'find-file-hooks 
-	  '(lambda ()
-	     (setq mode-line-buffer-identification 'buffer-file-truename)))
-
 ; Blink Emacs rather than ring the bell
 ;; (setq visible-bell t)
-
-(line-number-mode 1)
-;;(global-linum-mode 1)
-(column-number-mode 1)
 
 (setq cc-other-file-alist
   '(("\\.cpp$" (".h"))
@@ -248,118 +247,7 @@
 (setq split-width-threshold nil)
 (setq grep-scroll-output t)
 
-;; Window manipulation keys:
-;; Use META-arrow to move cursor between windows (and frames)
-;; Use SHIFT-CTRL-arrow to rotate buffers around windows (but not frames, need to fix this)
-;; Use CTRL-META-arrow to resize window
-
-;; Set up meta-arrow
-;; Use framemove to move across frames (windmove only moves within current frame)
-(windmove-default-keybindings 'meta)
-(require 'framemove)
-(setq framemove-hook-into-windmove t)
-
-;; Set up ctrl-meta-arrow to resize window (code from http://www.emacswiki.org/emacs/WindowResize)
-(defun win-resize-top-or-bot ()
-  "Figure out if the current window is on top, bottom or in the middle"
-  (let* ((win-edges (window-edges))
-         (this-window-y-min (nth 1 win-edges))
-         (this-window-y-max (nth 3 win-edges))
-         (fr-height (frame-height)))
-    (cond
-     ((eq 0 this-window-y-min) "top")
-     ((eq (- fr-height 1) this-window-y-max) "bot")
-     (t "mid"))))
-
-(defun win-resize-left-or-right ()
-  "Figure out if the current window is to the left, right or in the middle"
-  (let* ((win-edges (window-edges))
-         (this-window-x-min (nth 0 win-edges))
-         (this-window-x-max (nth 2 win-edges))
-         (fr-width (frame-width)))
-    (cond
-     ((eq 0 this-window-x-min) "left")
-     ((eq (+ fr-width 4) this-window-x-max) "right")
-     (t "mid"))))
-
-(defun win-resize-enlarge-horiz ()
-  (interactive)
-  (cond
-   ((equal "top" (win-resize-top-or-bot)) (enlarge-window -1))
-   ((equal "bot" (win-resize-top-or-bot)) (enlarge-window 1))
-   ((equal "mid" (win-resize-top-or-bot)) (enlarge-window -1))
-   (t (message "nil"))))
-
-(defun win-resize-minimize-horiz ()
-  (interactive)
-  (cond
-   ((equal "top" (win-resize-top-or-bot)) (enlarge-window 1))
-   ((equal "bot" (win-resize-top-or-bot)) (enlarge-window -1))
-   ((equal "mid" (win-resize-top-or-bot)) (enlarge-window 1))
-   (t (message "nil"))))
-
-(defun win-resize-enlarge-vert ()
-  (interactive)
-  (cond
-   ((equal "left" (win-resize-left-or-right)) (enlarge-window-horizontally -1))
-   ((equal "right" (win-resize-left-or-right)) (enlarge-window-horizontally 1))
-   ((equal "mid" (win-resize-left-or-right)) (enlarge-window-horizontally 1))))
-
-(defun win-resize-minimize-vert ()
-  (interactive)
-  (message "win-resize-minimize-vert")
-  (cond
-   ((equal "left" (win-resize-left-or-right)) (enlarge-window-horizontally 1))
-   ((equal "right" (win-resize-left-or-right)) (enlarge-window-horizontally -1))
-   ((equal "mid" (win-resize-left-or-right)) (enlarge-window-horizontally -1))))
-
-(defun win-resize-enlarge-horiz-large ()
-  (interactive)
-  (cond
-   ((equal "top" (win-resize-top-or-bot)) (enlarge-window -10))
-   ((equal "bot" (win-resize-top-or-bot)) (enlarge-window 10))
-   ((equal "mid" (win-resize-top-or-bot)) (enlarge-window -10))
-   (t (message "nil"))))
-
-(defun win-resize-minimize-horiz-large ()
-  (interactive)
-  (cond
-   ((equal "top" (win-resize-top-or-bot)) (enlarge-window 10))
-   ((equal "bot" (win-resize-top-or-bot)) (enlarge-window -10))
-   ((equal "mid" (win-resize-top-or-bot)) (enlarge-window 10))
-   (t (message "nil"))))
-
-(defun win-resize-enlarge-vert-large ()
-  (interactive)
-  (cond
-   ((equal "left" (win-resize-left-or-right)) (enlarge-window-horizontally -10))
-   ((equal "right" (win-resize-left-or-right)) (enlarge-window-horizontally 10))
-   ((equal "mid" (win-resize-left-or-right)) (enlarge-window-horizontally 10))))
-
-(defun win-resize-minimize-vert-large ()
-  (interactive)
-  (message "win-resize-minimize-vert")
-  (cond
-   ((equal "left" (win-resize-left-or-right)) (enlarge-window-horizontally 10))
-   ((equal "right" (win-resize-left-or-right)) (enlarge-window-horizontally -10))
-   ((equal "mid" (win-resize-left-or-right)) (enlarge-window-horizontally -10))))
-
-(global-set-key (kbd "C-M-<down>") 'win-resize-minimize-horiz)
-(global-set-key (kbd "C-M-<up>") 'win-resize-enlarge-horiz)
-(global-set-key (kbd "C-M-<left>") 'win-resize-enlarge-vert)
-(global-set-key (kbd "C-M-<right>") 'win-resize-minimize-vert)
-
-(global-set-key (kbd "C-S-M-<down>") 'win-resize-minimize-horiz-large)
-(global-set-key (kbd "C-S-M-<up>") 'win-resize-enlarge-horiz-large)
-(global-set-key (kbd "C-S-M-<left>") 'win-resize-enlarge-vert-large)
-(global-set-key (kbd "C-S-M-<right>") 'win-resize-minimize-vert-large)
-
-;; Set up shift-ctrl-arrow to rotate buffers around windows
-(require 'buffer-move)
-(global-set-key (kbd "C-S-<up>")     'buf-move-up)
-(global-set-key (kbd "C-S-<down>")   'buf-move-down)
-(global-set-key (kbd "C-S-<left>")   'buf-move-left)
-(global-set-key (kbd "C-S-<right>")  'buf-move-right)
+(load "window-management.el")
 
 ;; Set TAB to use hippie-expand, unless it should indent
 (defun indent-or-expand (arg)
@@ -398,7 +286,7 @@ point."
 (ido-mode t)
 
 ;; Display ido results vertically, rather than horizontally
-(setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
+(setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]" "\n-> " "")))
 
 (defun ido-disable-line-truncation () (set (make-local-variable 'truncate-lines) nil))
 (add-hook 'ido-minibuffer-setup-hook 'ido-disable-line-truncation)
@@ -422,9 +310,6 @@ point."
   (interactive "sGoogle: ")
   (browse-url
    (concat "http://www.google.com/#q=" query-string)))
-
-;; Change title bar to just "Emacs"
-(setq frame-title-format '("Emacs"))
 
 (defun eval-and-replace ()
   "Replace the preceding sexp with its value."
