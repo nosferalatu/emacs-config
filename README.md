@@ -11,4 +11,3 @@ To set this up, download Emacs, cd into its site-lisp directory, and clone the r
 ```
 cd c:\emacs\site-lisp
 git clone https://github.com/nosferalatu/emacs-config.git .
-
