@@ -7,8 +7,6 @@
 ;; DOUBLE FINE!
 ;;(require 'p4)
 
-;;(load "lua-mode")
-
 ;; No splash screen. inhibit-splash-screen works if set in .emacs; initial-buffer-choice works if set when loading site-lisp.
 (setq inhibit-splash-screen t)
 (setq initial-buffer-choice 'none)
@@ -65,6 +63,8 @@
   (auto-fill-mode 1)
   (defconst fill-column 120))
 (setq text-mode-hook 'my-text-mode-setup)
+
+(load "lua-mode")
 
 (setq auto-mode-alist
       (append (list (cons "\\.3$" 'nroff-mode)
