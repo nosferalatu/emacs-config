@@ -49,13 +49,12 @@
   )
 )
 
-(defun set-project-massive-chalice () (interactive) (progn (setq project-directory "c:/dfp-mc/") (setq dfp-project "c:/dfp-mc/mc/") (set-project-file-cache)))
-(defun set-project-massive-chalice-branch () (interactive) (progn (setq project-directory "c:/dfp-mc-sc/") (setq dfp-project "c:/dfp-mc/mc/") (set-project-file-cache)))
-(defun set-project-seed () (interactive) (progn (setq project-directory "d:/dfp-seed/") (setq dfp-project "d:/dfp-seed/seed/") (set-project-file-cache)))
-(defun set-project-steed () (interactive) (progn (setq project-directory "c:/dfp-afsteed/") (setq dfp-project "c:/dfp-afsteed/afsteed/") (set-project-file-cache)))
-(defun set-project-mnemonic () (interactive) (progn (setq project-directory "c:/dfp-afmnem/") (setq dfp-project "c:/dfp-afmnem/afmnem/") (set-project-file-cache)))
-(defun set-project-buds () (interactive) (progn (setq project-directory "c:/dfp-afbuds/") (setq dfp-project "c:/dfp-afbuds/afbuds/") (set-project-file-cache)))
-(defun set-project-asobi () (interactive) (progn (setq project-directory "c:/asobi/") (setq dfp-project "") (set-project-file-cache)))
+(defun set-project (new-project-directory new-dfp-project)
+  (interactive "sProject root: \nsdfp-project: ")
+  (progn
+    (setq project-directory new-project-directory)
+    (setq new-dfp-project new-dfp-project)
+    (set-project-file-cache)))
 
 (defun codegrep (prompt)
  (interactive (list (read-string (format "Grep code in \%s for: " project-directory))))
