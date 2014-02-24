@@ -1,11 +1,5 @@
-;; Configuration file. Either the .emacs or the site-list file should contain just the following:
-;;  (load "config.el")
-
- ;; Double Fine lisp
-;;(add-to-list 'load-path "d:/dfp-seed/main/tools/lisp"
-
-;; DOUBLE FINE!
-;;(require 'p4)
+;; Configuration file. Either the .emacs or the emacs/site-lisp/site-start.el file should contain just the following:
+;; (load "config.el")
 
 ;; No splash screen. inhibit-splash-screen works if set in .emacs; initial-buffer-choice works if set when loading site-lisp.
 (setq inhibit-splash-screen t)
@@ -464,6 +458,8 @@ point."
 
 (require 'browse-kill-ring)
 (browse-kill-ring-default-keybindings)  ;; M-y invokes kill ring browser
+
+(load "p4.el")
 
 ;; Create a new buffer named *default* and switch to it
 (generate-new-buffer "*default*")
