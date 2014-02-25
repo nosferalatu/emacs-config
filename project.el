@@ -53,7 +53,7 @@
   (interactive "sProject root: \nsdfp-project: ")
   (progn
     (setq project-directory new-project-directory)
-    (setq new-dfp-project new-dfp-project)
+    (setq dfp-project new-dfp-project)
     (set-project-file-cache)))
 
 (defun codegrep (prompt)
