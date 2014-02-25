@@ -73,6 +73,8 @@
       indent-tabs-mode nil)
 (define-key c-mode-base-map (kbd "RET") 'newline-and-indent)
 
+(setq default-tab-width 4)
+
 (defun my-text-mode-setup nil
   (auto-fill-mode 1)
   (defconst fill-column 120))
