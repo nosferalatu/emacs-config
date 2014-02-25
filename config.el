@@ -8,7 +8,7 @@
 (setq initial-buffer-choice 'none)
 
 ;; Set font
-(set-default-font "Consolas-9")
+(set-frame-font "consolas-9" nil t)
 
 ;; Default placement and width/height of emacs window
 (set-frame-position (selected-frame) 0 0)
