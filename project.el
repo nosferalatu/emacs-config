@@ -2,13 +2,10 @@
 ;; The following code works on the current project, which is defined in project-directory.
 
 ;; Global vars:
-;; project
-;; project-directory: the root of the project
-;; dfp-project: double fine root (similar to DFP_PROJECT env var)
-;; project-file-cache: the cache of all of the files in the project
+;; project: name of the project (currently same as its root)
 ;; project-file-extensions: list of filename extensions to include in projects
 
-;; project has the following properties:
+;; The global var project has the following properties:
 ;; root: the root of the project
 ;; filecache: cache of the filenames in the project
 ;; dfp-project: double fine root
@@ -61,26 +58,23 @@
 
 (defun set-project (root dfpp)
   (interactive "sProject root: \nsdfp-project: ")
-  (progn
-    (setq project-directory root)
-    (setq dfp-project dfpp)
-    (setq project-file-cache (get-project-file-cache root))))
+  (let ((filecache (get-project-file-cache root)))
+    (setq project root)
+    (put 'project 'root root)
+    (put 'project 'filecache filecache)
+    (put 'project 'dfp-project dfpp)))
 
 (defun codegrep (prompt)
- (interactive (list (read-string (format "Grep code in \%s for: " project-directory))))
+ (interactive (list (read-string (format "Grep code in \%s for: " (get 'project 'root)))))
 ;; (if (get-buffer "*grep*") ; If old grep window exists
 ;;     (progn 
 ;;       ;;(delete-windows-on (get-buffer "*grep*")) ; delete the grep windows
 ;;       ;;(kill-buffer "*grep*") ; and kill the buffers
 ;;       )
 ;;   )
- (let ((codegrep-directory
-       (if (boundp 'project-directory)
-           project-directory
-           default-directory)))
-       (compilation-start 
-        (format "grep -n -r \%s \%s \%s." (project-file-extensions-string-include-wildcards) prompt codegrep-directory)
-        'grep-mode)))
+ (compilation-start 
+  (format "grep -n -r \%s \%s \%s." (project-file-extensions-string-include-wildcards) prompt (get 'project 'root))
+  'grep-mode))
 
 (global-set-key (kbd "C-S-s") 'codegrep)
 
@@ -99,13 +93,13 @@
       ;; format path for display in ido list
       (setq key (replace-regexp-in-string "\\(.*?\\)\\([^/]+?\\)$" "\\2|\\1" path))
       ;; strip project root
-      (setq key (replace-regexp-in-string project-directory "" key))
+      (setq key (replace-regexp-in-string (get 'project 'root) "" key))
       ;; remove trailing | or /
       (setq key (replace-regexp-in-string "\\(|\\|/\\)$" "" key))
       (puthash key path tbl)
       (push key ido-list)
       )
-    project-file-cache
+    (get 'project 'filecache)
     )
   (find-file (gethash (ido-completing-read "project-files: " ido-list) tbl)))))
 (global-set-key (kbd "C-S-f") 'my-ido-project-files)
@@ -122,27 +116,25 @@
     (setq shader-files
           (split-string 
            (shell-command-to-string 
-            (concat "cmd.exe /c dir /s /b " (foreslash-to-backslash(concat dfp-project "Code\\ShaderLibrary\\Src\\*.fx"))))
+            (concat "cmd.exe /c dir /s /b " (foreslash-to-backslash (concat (get 'project 'dfp-project) "\\Code\\ShaderLibrary\\Src\\*.fx"))))
            "\n"))
 
     ;; Ask which shader to compile
     (setq shader-file (ido-completing-read "shader: " shader-files))
 
     ;; Compile
-    (setq command (concat dfp-project "win/bin/ShaderCompiler_win.exe " shader-file))
+    (setq command (concat (get 'project 'dfp-project) "/win/bin/ShaderCompiler_win.exe " shader-file))
     (setq compilation-scroll-output 'true)
-    (compilation-start command)
-))
+    (compilation-start command)))
 
 ;; Redo the last compile-shader command.
 (defun recompile-shader ()
   "Compile a Double Fine shader"
   (interactive)
   (progn
-    (setq command (concat dfp-project "win/bin/ShaderCompiler_win.exe " shader-file))
+    (setq command (concat (get 'project 'dfp-project) "/win/bin/ShaderCompiler_win.exe " shader-file))
     (setq compilation-scroll-output 'true)
-    (compilation-start command)
-))
+    (compilation-start command)))
 
 ;; How to match files
 (setq other-file-alist
@@ -180,7 +172,7 @@
     (let ((result '()))
       (if (not (equal (substring file 0 1) "/"))
           (setq file (concat "/" file)))
-      (dolist (f project-file-cache)
+      (dolist (f (get 'project 'filecache))
         (if (string-match file (backslash-to-foreslash f))
             (add-to-list 'result f)))
       result))
