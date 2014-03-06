@@ -10,6 +10,18 @@
 ;; filecache: cache of the filenames in the project
 ;; dfp-project: double fine root
 
+;; TODO:
+;; the global var 'project' now holds properties. Its value is its name but that is unused.
+;; turn project into project-list
+;; use the buffer's filename's root to figure out which project in project-list to use
+;; add way to switch to project (maybe open empty buffer but with the project set somehow?)
+;; add way to recache files for a specific project
+;; add way to add project to list of projects
+;; add way to delete a project from the list?
+;; need a nice way to specify search filters
+;; add way to search a different project
+;; automatically find shadercompiler and eliminate dfp-project
+
 (setq project nil)
 
 (setq project-file-extensions '(".cpp" ".c" ".h" ".lua" ".fx" ".fxh" ".py"))
