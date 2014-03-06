@@ -1,24 +1,47 @@
 ;; Notes on projects:
 ;; The following code works on the current project, which is defined in project-directory.
 
+;; Global vars:
+;; project-directory: the root of the project
+;; dfp-project: double fine root (similar to DFP_PROJECT env var)
+;; project-file-cache: the cache of all of the files in the project
+;; project-file-extensions: list of filename extensions to include in project
+
+(setq project-file-extensions '(".cpp" ".c" ".h" ".lua" ".fx" ".fxh" ".py"))
+
+;; This returns a concatenated string of the project-file-extensions variable.
+(defun project-file-extensions-string ()
+  ((lambda (l)
+     (let ((str (car l))
+           (list (cdr l)))
+       (while (car list)
+         (setq str (concat str " " (car list)))
+         (setq list (cdr list)))
+       str))
+   project-file-extensions))
+
+;; This returns a concatenated string of the project-file-extensions variable
+;; where each entry is prepended with *, e.g. "*.cpp *.c *.h ..."
+(defun project-file-extensions-string-wildcards ()
+  (replace-regexp-in-string "\\." "\*\." (project-file-extensions-string)))
+
+;; This returns a concatenated string of the project-file-extensions variable
+;; where each entry is prepended with --include=*, e.g. "--include=*.cpp --include=*.c --include*.h ..."
+;; Used to build arguments for grep
+(defun project-file-extensions-string-include-wildcards ()
+  (replace-regexp-in-string "\\." "--include=\*\." (project-file-extensions-string)))
+
+(print (project-file-extensions-string))
+(print (project-file-extensions-string-wildcards))
+(print (project-file-extensions-string-include-wildcards))
+
 ;; Given the project-file-cache variable, create a list of all the directories named project-directory-cache.
 (defun set-project-directory-cache ()
-  (setq project-directory-cache
+  (setq project-directory-cache        
         (let (dirs)
           (dolist (file project-file-cache)
             (push (file-name-directory file) dirs))
           (delete-dups dirs))))
-
-;; Build the tags file for the project at project-directory
-(defun create-project-tags ()
-  (progn
-    (message (concat "Building tags for project " project-directory "..."))
-    (cd project-directory)
-    (call-process "cmd.exe" nil "*output*" nil "/c dir /s /b *.h *.c *.cpp *.lua *.py > tagfiles.txt")
-    (call-process "cmd.exe" nil "*output*" nil "/c c:/emacs/bin/etags.exe - < tagfiles.txt")
-    (call-process "cmd.exe" nil "*output*" nil "/c erase tagfiles.txt")
-    (message "Loading tags for project " project-directory "...")
-    (visit-tags-table "tags")))
 
 ;; Caches the files in the current project (starting at
 ;; project-directory) into the variable project-file-cache. That
@@ -30,20 +53,17 @@
   (progn
     (cd project-directory)
 
-    ;; (create-project-tags)
-
     (message (concat "Caching files for project " project-directory "..."))
     (setq project-file-cache
           (split-string 
            (shell-command-to-string 
-            "cmd.exe /c dir /s /b *.cpp *.h *.lua *.fx *.fxh *.py") "\n"))
-
+            (concat
+             "cmd.exe /c dir /s /b " (project-file-extensions-string-wildcards))) "\n"))
+          
     ;; The above code generates a nil as the last entry, so remove it
     (delete "" project-file-cache)
 
     (set-project-directory-cache)
-
-    (setq cc-search-directories '("." "../src" "../Inc" "../include" "../../src" "../../inc" "../../include" project-directory-cache))
 
     (message (concat "Done caching files for " project-directory))
   )
@@ -69,9 +89,9 @@
            project-directory
            default-directory)))
        (compilation-start 
-        (format "grep -n -r --include=*.cpp --include=*.c --include=*.h --include=*.lua --include=*.py --include=*.fx --include=*.fxh \%s \%s." prompt codegrep-directory)
-        'grep-mode))
- )
+        (format "grep -n -r \%s \%s \%s." (project-file-extensions-string-include-wildcards) prompt codegrep-directory)
+        'grep-mode)))
+
 (global-set-key (kbd "C-S-s") 'codegrep)
 
 ;; Always open *grep* windows in the current window; inhibit creating a new one
@@ -104,7 +124,6 @@
 (defun backslash-to-foreslash (str) (replace-regexp-in-string "\\\\" "/" str t t))
 
 ;; Compile a Double Fine shader.
-;; Note the hard-coded MC in the path. That should be specified in a new project specific variable.
 (defun compile-shader ()
   "Compile a Double Fine shader"
   (interactive)
