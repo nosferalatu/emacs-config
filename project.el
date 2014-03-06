@@ -2,10 +2,18 @@
 ;; The following code works on the current project, which is defined in project-directory.
 
 ;; Global vars:
+;; project
 ;; project-directory: the root of the project
 ;; dfp-project: double fine root (similar to DFP_PROJECT env var)
 ;; project-file-cache: the cache of all of the files in the project
-;; project-file-extensions: list of filename extensions to include in project
+;; project-file-extensions: list of filename extensions to include in projects
+
+;; project has the following properties:
+;; root: the root of the project
+;; filecache: cache of the filenames in the project
+;; dfp-project: double fine root
+
+(setq project nil)
 
 (setq project-file-extensions '(".cpp" ".c" ".h" ".lua" ".fx" ".fxh" ".py"))
 
@@ -35,46 +43,28 @@
 (print (project-file-extensions-string-wildcards))
 (print (project-file-extensions-string-include-wildcards))
 
-;; Given the project-file-cache variable, create a list of all the directories named project-directory-cache.
-(defun set-project-directory-cache ()
-  (setq project-directory-cache        
-        (let (dirs)
-          (dolist (file project-file-cache)
-            (push (file-name-directory file) dirs))
-          (delete-dups dirs))))
-
-;; Caches the files in the current project (starting at
-;; project-directory) into the variable project-file-cache. That
-;; variable is used by the my-ido-project-files function.
-(defun set-project-file-cache ()
+;; Scans the drive starting at the project root and returns
+;; the list of files in the current project.
+(defun get-project-file-cache (root)
   "Cache the files in the project for ido fast find"
   (interactive)
-  ;; get project files
   (progn
-    (cd project-directory)
+    (cd root)
+    (message (concat "Caching files for project " root "..."))
+    (let ((cache (split-string 
+                  (shell-command-to-string 
+                   (concat
+                    "cmd.exe /c dir /s /b " (project-file-extensions-string-wildcards))) "\n")))
+      (delete "" cache)  ;; The above code generates a nil as the last entry, so remove it
+      (message (concat "Done caching files for " root))
+      cache)))
 
-    (message (concat "Caching files for project " project-directory "..."))
-    (setq project-file-cache
-          (split-string 
-           (shell-command-to-string 
-            (concat
-             "cmd.exe /c dir /s /b " (project-file-extensions-string-wildcards))) "\n"))
-          
-    ;; The above code generates a nil as the last entry, so remove it
-    (delete "" project-file-cache)
-
-    (set-project-directory-cache)
-
-    (message (concat "Done caching files for " project-directory))
-  )
-)
-
-(defun set-project (new-project-directory new-dfp-project)
+(defun set-project (root dfpp)
   (interactive "sProject root: \nsdfp-project: ")
   (progn
-    (setq project-directory new-project-directory)
-    (setq dfp-project new-dfp-project)
-    (set-project-file-cache)))
+    (setq project-directory root)
+    (setq dfp-project dfpp)
+    (setq project-file-cache (get-project-file-cache root))))
 
 (defun codegrep (prompt)
  (interactive (list (read-string (format "Grep code in \%s for: " project-directory))))
