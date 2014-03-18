@@ -26,7 +26,8 @@
 
 (setq project-file-extensions '(".cpp" ".c" ".h" ".lua" ".fx" ".fxh" ".py"))
 
-;; This returns a concatenated string of the project-file-extensions variable.
+;; This returns a concatenated string of the project-file-extensions variable
+;; e.g. ".cpp .c .h ..."
 (defun project-file-extensions-string ()
   ((lambda (l)
      (let ((str (car l))
@@ -52,7 +53,7 @@
 (print (project-file-extensions-string-wildcards))
 (print (project-file-extensions-string-include-wildcards))
 
-;; Scans the drive starting at the project root and returns
+;; Scans the drive starting at the specified root and returns
 ;; the list of files in the current project.
 (defun get-project-file-cache (root)
   "Cache the files in the project for ido fast find"
@@ -211,3 +212,39 @@
   ))
 
 (global-set-key [f3] 'find-matching-file) 
+
+(defun remove-trailing-foreslash (path)
+  (let*
+      ((index-of-last-char (- (length path) 1))
+       (last-char (aref path index-of-last-char)))
+    (if (eq last-char ?/)
+        (substring path 0 index-of-last-char)
+      path)))
+
+;; Given a path, see if it matches any of the projects. If so, returns the project root.
+(defun project-matches (path)
+  (let ((path (remove-trailing-foreslash path)))
+    (if (string= path (get 'project 'root))
+        path
+      nil)))
+
+(project-matches "c:/dfp-mc/")
+
+;; Given an a filename, return its project root by looping through the projects and finding the first one that matches.
+(defun get-project-root (filename)
+  (let*
+      ((path (file-name-directory (backslash-to-foreslash filename)))
+       (parts (split-string path "/"))
+       (partial-path ())
+       (match ()))
+    (progn
+      (while (and (car parts) (not match))
+        (setq partial-path (concat partial-path (car parts) "/"))
+        ;;(insert partial-path "\n")
+        (setq match (project-matches partial-path))
+        (setq parts (cdr parts)))
+      match)))
+
+(print (get-project-root buffer-file-name))
+
+
