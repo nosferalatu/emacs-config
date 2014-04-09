@@ -205,6 +205,11 @@
 ;; Don't make damn ~ backup files
 (setq backup-inhibited "true")
 
+;; But on each save, create a backup file
+(require 'backup-each-save)
+(add-hook 'after-save-hook 'backup-each-save)
+(setq backup-each-save-mirror-location "c:/emacs/backups")
+
 ;; Load new tags file without prompting user to 
 (setq tags-revert-without-query 1)
 
