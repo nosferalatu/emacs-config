@@ -212,12 +212,13 @@
 
 ;; Returns this buffer's project's hash table
 (defun get-project-for-buffer ()
-  (get-project buffer-file-name))
+  (if buffer-file-name
+      (get-project buffer-file-name)))
 
 ;; Returns this buffer's project's root, or nil if the buffer isn't inside a project
 (defun get-project-root-for-buffer ()
   (let ((proj (get-project-for-buffer)))
-    (if (hash-table-p proj)
+    (if (and proj (hash-table-p proj))
         (gethash 'root proj)
       nil)))
 
