@@ -53,7 +53,10 @@
 ;;(load-theme 'zenburn t)
 ;;(load-theme 'solarized-dark t)
 ;;(load-theme 'solarized-light t)
-(load-theme 'deeper-blue t)
+;;(load-theme 'deeper-blue t)
+;;(load-theme 'monochrome t)
+;;(load-theme 'bharadwaj t)
+(load-theme 'planet t)
 
 ;; Start Emacs server
 ;; Suppress error "directory ~/.emacs.d/server is unsafe" on Windows
@@ -99,6 +102,7 @@
                     (cons "\\.vsh$" 'asm-mode)       ; XBox vertex shader
                     (cons "\\.psh$" 'asm-mode)       ; XBox pixel shader
                     (cons "\\.fx$" 'c++-mode)        ; HLSL
+                    (cons "\\.fxh$" 'c++-mode)       ; HLSL
                     (cons "\\.lua$" 'lua-mode))      ; Lua
               auto-mode-alist))
 
@@ -336,7 +340,7 @@ point."
   (interactive)
   (if (y-or-n-p (format "Are you sure you want to exit Emacs? "))
         (save-buffers-kill-emacs)
-    (message "Canceled exit")))
+3    (message "Canceled exit")))
 
 (global-set-key (kbd "C-x C-c") 'ask-before-closing)
 
