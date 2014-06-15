@@ -340,7 +340,7 @@ point."
   (interactive)
   (if (y-or-n-p (format "Are you sure you want to exit Emacs? "))
         (save-buffers-kill-emacs)
-3    (message "Canceled exit")))
+    (message "Canceled exit")))
 
 (global-set-key (kbd "C-x C-c") 'ask-before-closing)
 

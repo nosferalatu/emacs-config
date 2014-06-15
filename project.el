@@ -1,4 +1,4 @@
-;; The following functions are useful:
+; The following functions are useful:
 ;; add-project
 ;; remove-project
 ;; grep-project
@@ -10,11 +10,11 @@
 ;; There is one global variable called projects. projects is a hash table whose keys are the project roots (such as "c:/dfp-seed") and the value is another hash table with the following entries:
 ;; root: the root of the project (same as the key in the projects hash table)
 ;; filecache: cache of the filenames in the project
-;; dfp-project: double fine root (e.g. root of "c:/dfp-mc" has double fine root of "c:/dfp-mc/mc")
+;; dfconfig: the path to the project's DFCONFIG
 
 ;; TODO:
 ;; specify filters in projectgrep? make a list of prompts and filters (such as (("All" . ".cpp .c .h") ("Lua" . ".lua") ("Shader" . ".fx .fxh"))) and ask the user which to use in the grep-code function
-;; automatically find shadercompiler and eliminate dfp-project
+;; automatically find shadercompiler using DFCONFIG
 
 (setq projects (make-hash-table :test 'equal))
 
@@ -59,17 +59,32 @@
       (message (concat "Done caching files for " root))
       cache)))
 
+;; Scans the drive starting at the specified root and returns
+;; the first DFCONFIG it finds
+(defun get-dfconfig (root)
+  "Locate DFCONFIG"
+  (interactive)
+  (progn
+    (cd root)
+    (message "Locating DFCONFIG...")
+    (let ((dfconfigs (split-string 
+                  (shell-command-to-string
+                   "cmd.exe /c dir /s /b DFCONFIG") "\n")))
+      (file-name-directory (car dfconfigs)))))
+
 ;; Adds a new project to the global table of projects
 ;; Caches the files used in the project using get-project-file-cache
 ;; If the project is already in the list, the old one is replaced with the new one (so it recaches the files)
-(defun add-project (root dfpp)
-  (interactive "sProject root: \nsdfp-project: ")
+(defun add-project (root)
+  (interactive "sProject root: ")
   (let ((filecache (get-project-file-cache root)))
     (setq project (make-hash-table))
     (puthash 'root root project)
     (puthash 'filecache filecache project)
-    (puthash 'dfp-project dfpp project)
-    (puthash root project projects)))
+    (puthash 'dfconfig (get-dfconfig root) project)
+    (puthash root project projects)
+    (message (concat "Finished loading " root))
+    ))
 
 (defun delete-project ()
   (interactive)
