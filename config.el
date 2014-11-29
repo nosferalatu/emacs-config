@@ -40,23 +40,22 @@
 	  '(lambda ()
 	     (setq mode-line-buffer-identification 'buffer-file-truename)))
 
-(require 'w32-fullscreen)
-
 ;; do not truncate long lines when window is split horizontally
 (defconst truncate-partial-width-windows nil)
 
 ;; Theme
-(add-to-list 'custom-theme-load-path "c:/emacs/site-lisp")
-(add-to-list 'custom-theme-load-path "c:/emacs/site-lisp/thirdparty")
-(add-to-list 'custom-theme-load-path "c:/emacs/site-lisp/thirdparty/solarized")
+(add-to-list 'custom-theme-load-path "c:/emacs/share/emacs/site-lisp") 
+(add-to-list 'custom-theme-load-path "c:/emacs/share/emacs/site-lisp/thirdparty")
+(add-to-list 'custom-theme-load-path "c:/emacs/share/emacs/site-lisp/thirdparty/solarized")
 (setq solarized-broken-srgb t)
 ;;(load-theme 'zenburn t)
 ;;(load-theme 'solarized-dark t)
 ;;(load-theme 'solarized-light t)
 ;;(load-theme 'deeper-blue t)
-;;(load-theme 'monochrome t)
+(load-theme 'monochrome t)
 ;;(load-theme 'bharadwaj t)
-(load-theme 'planet t)
+;;(load-theme 'planet t)
+;;(load-theme 'github t)
 
 ;; Start Emacs server
 ;; Suppress error "directory ~/.emacs.d/server is unsafe" on Windows
@@ -147,7 +146,7 @@
 
 (global-set-key [home] 'beginning-of-line) 
 (global-set-key [end] 'end-of-line) 
-(global-set-key [f1] 'w32-fullscreen) 
+(global-set-key [f1] 'toggle-frame-fullscreen) 
 (global-set-key [f2] 'find-matching-file) 
 (global-set-key [f3] 'split-window-horizontally) 
 (global-set-key [f4] 'delete-window) 
@@ -356,6 +355,16 @@ point."
 (browse-kill-ring-default-keybindings)  ;; M-y invokes kill ring browser
 
 (load "p4.el")
+
+;; Ctrl-up/down scrolls the window but leaves the cursor in the same place on the screen
+(global-set-key (kbd "C-<up>") 'scroll-down-line)
+(global-set-key (kbd "C-<down>") 'scroll-up-line)
+
+;; jpeg is bound by default; add jpg, JPG, JPEG
+(setq dynamic-library-alist (cons '(jpg "jpeg62.dll") dynamic-library-alist))
+(setq dynamic-library-alist (cons '(jpeg "jpeg62.dll") dynamic-library-alist))
+(setq dynamic-library-alist (cons '(JPG "jpeg62.dll") dynamic-library-alist))
+(setq dynamic-library-alist (cons '(JPEG "jpeg62.dll") dynamic-library-alist))
 
 ;; Final steps: Load local.el if it exists, and then create and switch to buffer *default*.
 ;; Local.el can contain any computer-specific configuration (it's in the .gitignore list).
