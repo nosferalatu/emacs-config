@@ -228,6 +228,7 @@
 
 ;; Default command to use for M-x compile
 (setq compile-command "make.bat SfNoamMicrocodeRender")
+(setq compilation-scroll-output t)
 
 (defun yes-or-no-p (prompt)
   "replace tedious yes/no+enter with y/n keypress"
