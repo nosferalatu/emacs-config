@@ -378,6 +378,10 @@ point."
 (setq dynamic-library-alist (cons '(JPG "jpeg62.dll") dynamic-library-alist))
 (setq dynamic-library-alist (cons '(JPEG "jpeg62.dll") dynamic-library-alist))
 
+;; set up python-mode so that C-c C-c behaves like C-u C-c C-c (so it executes if __name__ == '__main__'):
+(add-hook 'python-mode-hook
+          (lambda () (define-key python-mode-map (kbd "C-c C-c")  (lambda () (interactive) (python-shell-send-buffer t)))))
+
 ;; Final steps: Load local.el if it exists, and then create and switch to buffer *default*.
 ;; Local.el can contain any computer-specific configuration (it's in the .gitignore list).
 (load "local.el" t)
