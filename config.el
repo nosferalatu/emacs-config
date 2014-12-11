@@ -1,14 +1,26 @@
-;; Configuration file. Either the .emacs or the emacs/site-lisp/site-start.el file should contain just the following:
-;; (load "config.el")
+;; Configuration file. Either the .emacs or the emacs/site-lisp/site-start.el file should load this file.
 
+;; Set elisp-directory to the directory where this config file is installed. We split exec-directory into its directories
+;; and construct the path from that. We assume that Emacs is installed at the root of the drive (e.g. c:/emacs).
+(let 
+    ((dirs (split-string exec-directory "/")))
+  (setq elisp-directory (concat (car dirs) "/" (nth '1 dirs) "/elisp/")))
+
+;; Set load-path to include all the directories in our elisp directory
+(let
+    ((default-directory elisp-directory))
+  (add-to-list 'load-path elisp-directory)
+  (normal-top-level-add-subdirs-to-load-path))
+
+;; Common lisp
 (require 'cl)
 
-;; No splash screen. inhibit-splash-screen works if set in .emacs; initial-buffer-choice works if set when loading site-lisp.
+;; No splash screen. inhibit-splash-screen works if set in .emacs; initial-buffer-choice works if set when loading from the elisp directory.
 (setq inhibit-splash-screen t)
 (setq initial-buffer-choice 'none)
 
 ;; Set font
-(set-frame-font "consolas-9" nil t)
+(set-frame-font "consolas-10" nil t)
 
 ;; Default placement and width/height of emacs window
 (set-frame-position (selected-frame) 0 0)
@@ -44,17 +56,16 @@
 (defconst truncate-partial-width-windows nil)
 
 ;; Theme
-(add-to-list 'custom-theme-load-path "c:/emacs/share/emacs/site-lisp") 
-(add-to-list 'custom-theme-load-path "c:/emacs/share/emacs/site-lisp/thirdparty")
-(add-to-list 'custom-theme-load-path "c:/emacs/share/emacs/site-lisp/thirdparty/solarized")
+(add-to-list 'custom-theme-load-path elisp-directory) 
+(add-to-list 'custom-theme-load-path (concat elisp-directory "thirdparty"))
+(add-to-list 'custom-theme-load-path (concat elisp-directory "thirdparty/solarized"))
 (setq solarized-broken-srgb t)
-;;(load-theme 'zenburn t)
 ;;(load-theme 'solarized-dark t)
 ;;(load-theme 'solarized-light t)
 ;;(load-theme 'deeper-blue t)
-(load-theme 'monochrome t)
+;;(load-theme 'monochrome t)
 ;;(load-theme 'bharadwaj t)
-;;(load-theme 'planet t)
+(load-theme 'planet t)
 ;;(load-theme 'github t)
 
 ;; Start Emacs server
