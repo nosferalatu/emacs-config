@@ -378,9 +378,28 @@ point."
 (setq dynamic-library-alist (cons '(JPG "jpeg62.dll") dynamic-library-alist))
 (setq dynamic-library-alist (cons '(JPEG "jpeg62.dll") dynamic-library-alist))
 
-;; set up python-mode so that C-c C-c behaves like C-u C-c C-c (so it executes if __name__ == '__main__'):
+;; set up python-mode so that C-c C-c behaves like C-u C-c C-c (so it executes if __name__ == '__main__')
+;; also, pop up the python shell buffer
 (add-hook 'python-mode-hook
-          (lambda () (define-key python-mode-map (kbd "C-c C-c")  (lambda () (interactive) (python-shell-send-buffer t)))))
+          (lambda () (define-key python-mode-map (kbd "C-c C-c")
+                       (lambda () (interactive)
+                         (python-shell-send-buffer t)
+                         (python-shell-switch-to-shell)))))
+
+;; Set up PDB debugging. pdb.py isn't in my path, and Emacs PDB mode on Windows needs -u for unbuffered output
+(setq gud-pdb-command-name "python -u -m pdb")
+
+;; Set up Jedi for Python autocomplete
+;; The first time you run Emacs Jedi on a machine, you may need to run M-x jedi:install-server
+;; Also, you'll need a recent version of virtualenv (you can upgrade via 'pip install virtualenv --upgrade')
+(setq jedi:complete-on-dot t)
+(add-hook 'python-mode-hook 'jedi:setup)
+
+;; set up melpa
+(require 'package)
+(setq package-user-dir (concat elisp-directory "thirdparty/elpa"))
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(package-initialize)
 
 ;; Final steps: Load local.el if it exists, and then create and switch to buffer *default*.
 ;; Local.el can contain any computer-specific configuration (it's in the .gitignore list).
