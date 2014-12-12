@@ -396,9 +396,11 @@ point."
 (add-hook 'python-mode-hook 'jedi:setup)
 
 ;; For comint modes (command shell, Python shell, etc) put the cursor at the bottom of the buffer on output
-;; Also, as soon as you type any input, put it at the bottom of the comint buffer
+;; As soon as you type any input, put it at the bottom of the comint buffer
+;; Set the prompt as read only, so pressing delete doesn't erase the prompt
 (setq comint-scroll-to-bottom-on-input t)
 (setq comint-scroll-to-bottom-on-output t)
+(setq comint-prompt-read-only t)
 
 ;; set up melpa
 (require 'package)
