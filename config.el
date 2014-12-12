@@ -395,6 +395,11 @@ point."
 (setq jedi:complete-on-dot t)
 (add-hook 'python-mode-hook 'jedi:setup)
 
+;; For comint modes (command shell, Python shell, etc) put the cursor at the bottom of the buffer on output
+;; Also, as soon as you type any input, put it at the bottom of the comint buffer
+(setq comint-scroll-to-bottom-on-input t)
+(setq comint-scroll-to-bottom-on-output t)
+
 ;; set up melpa
 (require 'package)
 (setq package-user-dir (concat elisp-directory "thirdparty/elpa"))
