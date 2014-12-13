@@ -4,6 +4,7 @@
 ;; and construct the path from that. We assume that Emacs is installed at the root of the drive (e.g. c:/emacs).
 (let 
     ((dirs (split-string exec-directory "/")))
+  (setq emacs-directory (concat (car dirs) "/" (nth '1 dirs) "/"))
   (setq elisp-directory (concat (car dirs) "/" (nth '1 dirs) "/elisp/")))
 
 ;; Set load-path to include all the directories in our elisp directory
@@ -219,10 +220,10 @@
 ;; Don't make damn ~ backup files
 (setq backup-inhibited "true")
 
-;; But on each save, create a backup file
+;; But on each save, create a backup file in e.g. c:/emacs/backups
 (require 'backup-each-save)
 (add-hook 'after-save-hook 'backup-each-save)
-(setq backup-each-save-mirror-location "c:/emacs/backups")
+(setq backup-each-save-mirror-location (concat emacs-directory "backups"))
 
 ;; Load new tags file without prompting user to 
 (setq tags-revert-without-query 1)
@@ -411,5 +412,3 @@ point."
 ;; Final steps: Load local.el if it exists, and then create and switch to buffer *default*.
 ;; Local.el can contain any computer-specific configuration (it's in the .gitignore list).
 (load "local.el" t)
-(generate-new-buffer "*default*")
-(switch-to-buffer "*default*")
