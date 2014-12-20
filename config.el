@@ -66,8 +66,9 @@
 ;;(load-theme 'deeper-blue t)
 ;;(load-theme 'monochrome t)
 ;;(load-theme 'bharadwaj t)
-(load-theme 'planet t)
+;;(load-theme 'planet t)
 ;;(load-theme 'github t)
+(load-theme 'erosiond t)
 
 ;; Start Emacs server
 ;; Suppress error "directory ~/.emacs.d/server is unsafe" on Windows
