@@ -385,7 +385,7 @@ point."
 (add-hook 'python-mode-hook
           (lambda () (define-key python-mode-map (kbd "C-c C-c")
                        (lambda () (interactive)
-                         (python-shell-send-buffer t)
+                         (python-shell-send-file buffer-file-name)
                          (python-shell-switch-to-shell)))))
 
 ;; Set up PDB debugging. pdb.py isn't in my path, and Emacs PDB mode on Windows needs -u for unbuffered output
@@ -409,6 +409,12 @@ point."
 (setq package-user-dir (concat elisp-directory "thirdparty/elpa"))
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
+
+;; smex
+(require 'smex)
+(smex-initialize)
+(global-set-key (kbd "M-x") 'smex)
+(global-set-key (kbd "M-X") 'smex-major-mode-commands) ;; shows commands relevant to active major mode
 
 ;; Final steps: Load local.el if it exists, and then create and switch to buffer *default*.
 ;; Local.el can contain any computer-specific configuration (it's in the .gitignore list).
