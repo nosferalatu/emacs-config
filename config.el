@@ -416,6 +416,15 @@ point."
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands) ;; shows commands relevant to active major mode
 
+;; Instead of playing the alarm bell sound, flash the modeline when there are errors
+(defun my-terminal-visible-bell ()
+   "A friendlier visual bell effect."
+   (invert-face 'mode-line)
+   (run-with-timer 0.05 nil 'invert-face 'mode-line))
+ 
+(setq visible-bell nil)
+(setq ring-bell-function 'my-terminal-visible-bell)
+
 ;; Final steps: Load local.el if it exists, and then create and switch to buffer *default*.
 ;; Local.el can contain any computer-specific configuration (it's in the .gitignore list).
 (load "local.el" t)
