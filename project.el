@@ -165,19 +165,39 @@
 (defun compile-shader ()
   "Compile a Double Fine shader"
   (interactive)
-  (progn
-    ;; Get shader files
-    (setq shader-files
-          (split-string 
-           (shell-command-to-string 
-            (concat "cmd.exe /c dir /s /b " (foreslash-to-backslash (concat (get 'project 'dfp-project) "\\Code\\ShaderLibrary\\Src\\*.fx"))))
-           "\n"))
+  (let*
+      ((selected-project (query-for-project "Project: "))
 
-    ;; Ask which shader to compile
-    (setq shader-file (ido-completing-read "shader: " shader-files))
+       ;; Find all the shader compile .exe's
+       (shader-compilers
+        (split-string 
+         (shell-command-to-string 
+          (concat "cmd.exe /c dir /s /b " (foreslash-to-backslash (concat (gethash 'dfconfig selected-project) "\\Win\\Bin\\ShaderCompiler_*.exe"))))
+         "\n"))
+
+       ;; Find all the shaders
+       (shader-files
+        (split-string 
+         (shell-command-to-string 
+          (concat "cmd.exe /c dir /s /b " (foreslash-to-backslash (concat (gethash 'dfconfig selected-project) "\\Code\\ShaderLibrary\\Src\\*.fx"))))
+         "\n")))
+
+    ;; dir /s /b generates nil as the last entry so remove it
+    (delete "" shader-compilers)
+    (delete "" shader-files)
+
+    ;; Ask which shader compiler to use (sets the global shader-compiler variable so it can be reused by recompile-shader)
+    (setq shader-compiler (ido-completing-read "Run: " shader-compilers))
+
+    ;; If the current buffer has the extension .fx, compile that file; otherwise, ask which shader to compile
+    ;; (sets the global shader-file variable so it can be reused by recompile-shader)
+    (setq shader-file
+          (if (string= "fx" (file-name-extension buffer-file-name))
+              (foreslash-to-backslash buffer-file-name)
+            (ido-completing-read "Shader: " shader-files)))
 
     ;; Compile
-    (setq command (concat (get 'project 'dfp-project) "/win/bin/ShaderCompiler_win.exe " shader-file))
+    (setq command (concat shader-compiler " " shader-file))
     (setq compilation-scroll-output 'true)
     (compilation-start command)))
 
@@ -186,7 +206,7 @@
   "Compile a Double Fine shader"
   (interactive)
   (progn
-    (setq command (concat (get 'project 'dfp-project) "/win/bin/ShaderCompiler_win.exe " shader-file))
+    (setq command (concat shader-compiler " " shader-file))
     (setq compilation-scroll-output 'true)
     (compilation-start command)))
 
@@ -240,7 +260,7 @@
 
 
 ;; The following functions implement "find matching file" functionality using the project information.
-;; A matching file means e.g. the .h that matches the .cpp and vice versa.
+;; A matching file means e.g. the .h that matches the .cpp.
 ;; When you are on a #include line, it instead opens the file that the #include references.
 ;; It uses other-file-alist to associate matching file extensions. Also, it uses the buffer's current project
 ;; to quickly find the matching file.
