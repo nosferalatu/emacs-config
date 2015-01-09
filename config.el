@@ -404,6 +404,14 @@ point."
 (setq comint-scroll-to-bottom-on-output t)
 (setq comint-prompt-read-only t)
 
+;; Enable dirtrack-mode in the shell to track current directory
+;; This regexp parses the prompt from Windows cmd.exe
+(setq dirtrack-list '("^\([a-zA-Z]:\\.*\)\>" 1))
+(add-hook 'shell-mode-hook 'dirtrack-mode)
+
+;; M-s starts a new shell with a unique name 
+(global-set-key (kbd "M-s") '(lambda () (interactive) (shell (generate-new-buffer (generate-new-buffer-name "*shell*")))))
+
 ;; set up melpa
 (require 'package)
 (setq package-user-dir (concat elisp-directory "thirdparty/elpa"))
@@ -419,7 +427,7 @@ point."
 ;; Instead of playing the alarm bell sound, flash the modeline when there are errors
 (defun my-terminal-visible-bell ()
    "A friendlier visual bell effect."
-   (invert-face 'mode-line)
+   (invert-face 'mode-line) 
    (run-with-timer 0.05 nil 'invert-face 'mode-line))
  
 (setq visible-bell nil)
