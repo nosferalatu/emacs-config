@@ -404,10 +404,27 @@ point."
 (setq comint-scroll-to-bottom-on-output t)
 (setq comint-prompt-read-only t)
 
-;; Enable dirtrack-mode in the shell to track current directory
-;; This regexp parses the prompt from Windows cmd.exe
-(setq dirtrack-list '("^\([a-zA-Z]:\\.*\)\>" 1))
-(add-hook 'shell-mode-hook 'dirtrack-mode)
+;; Turn off shell-dirtrack-mode, which tries to detect the commands cd,pushp, and popd but fails to detect "cd.."
+;; which is a valid command in Windows cmd.exe. Instead, just look at the command line prompt to find the
+;; current directory.
+(add-hook 'shell-mode-hook
+        '(lambda ()
+            (shell-dirtrack-mode nil)
+            (add-hook 'comint-preoutput-filter-functions 'shell-sync-dir-with-prompt nil t)))
+
+(defun shell-sync-dir-with-prompt (string)
+  (if (string-match "^\\([a-zA-Z]:.*\\)>" string)
+      (let* ((str string)
+             (cwd (match-string 1 str)))
+        (setq default-directory
+              (if (string-equal "/" (substring cwd -1))
+                  cwd
+                (setq cwd (concat cwd "/"))))
+        string)
+    string))
+
+;; Shell tab complete uses backslash
+(setq comint-completion-addsuffix (quote ("\\" . " ")))
 
 ;; M-s starts a new shell with a unique name 
 (global-set-key (kbd "M-s") '(lambda () (interactive) (shell (generate-new-buffer (generate-new-buffer-name "*shell*")))))
