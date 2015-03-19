@@ -204,19 +204,26 @@
 (global-font-lock-mode t)
 
 ;; Bookmarks
+;; F2 toggles bookmark at point, SHIFT-F2 clears all bookmarks, ctrl-pagedown/ctrl-pageup jumps next/previous
 (require 'bm)
 (setq bm-cycle-all-buffers t)
-(setq bm-recenter t)
+(setq bm-recenter nil)
 (setq bm-highlight-style 'bm-highlight-line-and-fringe)
+(global-set-key (kbd "<f2>") 'bm-toggle)
+(global-set-key (kbd "S-<f2>") 'bm-remove-all-all-buffers)
+(global-set-key (kbd "C-<next>") 'bm-next)
+(global-set-key (kbd "C-<prior>") 'bm-previous)
 (global-set-key (kbd "C-c b m") 'bm-toggle)
 (global-set-key (kbd "C-c b n") 'bm-next)
 (global-set-key (kbd "C-c b p") 'bm-previous)
 (global-set-key (kbd "C-c b s") 'bm-show-all)
 (global-set-key (kbd "C-c b a") 'bm-bookmark-annotate)
 (global-set-key (kbd "C-c b c") 'bm-remove-all-all-buffers)
-(global-set-key (kbd "C-<f2>") 'bm-toggle)
-(global-set-key (kbd "<f2>") 'bm-next)
-(global-set-key (kbd "S-<f2>") 'bm-previous)
+(global-set-key (kbd "C-c b <SPC>") 'bm-toggle)
+(global-set-key (kbd "C-c b <up>") 'bm-previous)
+(global-set-key (kbd "C-c b <left>") 'bm-previous)
+(global-set-key (kbd "C-c b <down>") 'bm-next)
+(global-set-key (kbd "C-c b <right>") 'bm-next)
 
 ;; Don't make damn ~ backup files
 (setq backup-inhibited "true")
