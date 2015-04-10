@@ -457,6 +457,20 @@ point."
 (setq visible-bell nil)
 (setq ring-bell-function 'my-terminal-visible-bell)
 
+;; Org-present
+(autoload 'org-present "org-present" nil t)
+
+(add-hook 'org-present-mode-hook
+          (lambda ()
+            (org-present-big)
+            (org-display-inline-images)))
+
+(add-hook 'org-present-mode-quit-hook
+          (lambda ()
+            (org-present-small)
+            (org-remove-inline-images)))
+
+
 ;; Final steps: Load local.el if it exists, and then create and switch to buffer *default*.
 ;; Local.el can contain any computer-specific configuration (it's in the .gitignore list).
 (load "local.el" t)
