@@ -61,16 +61,16 @@
 (add-to-list 'custom-theme-load-path (concat elisp-directory "thirdparty"))
 (add-to-list 'custom-theme-load-path (concat elisp-directory "thirdparty/solarized"))
 (setq solarized-broken-srgb t)
-;;(load-theme 'solarized-dark t)
+(load-theme 'solarized-dark t)
 ;;(load-theme 'solarized-light t)
 ;;(load-theme 'deeper-blue t)
 ;;(load-theme 'monochrome t)
-;;(load-theme 'bharadwaj t)
-;;(load-theme 'planet t)
+;(load-theme 'bharadwaj t)
+(load-theme 'planet t)
 ;;(load-theme 'github t)
 ;;(load-theme 'erosiond t)
 ;;(load-theme 'django t) ;; xbox green
-(load-theme 'underwater t) ;; playstation blue
+;;(load-theme 'underwater t) ;; playstation blue
 
 ;; Start Emacs server
 ;; Suppress error "directory ~/.emacs.d/server is unsafe" on Windows
@@ -397,12 +397,22 @@ point."
 (setq dynamic-library-alist (cons '(JPEG "jpeg62.dll") dynamic-library-alist))
 
 ;; set up python-mode so that C-c C-c behaves like C-u C-c C-c (so it executes if __name__ == '__main__')
-;; also, pop up the python shell buffer
+;; this also kills the existing Python shell and creates a new one. it would be nicer to reload() the file
 (add-hook 'python-mode-hook
           (lambda () (define-key python-mode-map (kbd "C-c C-c")
                        (lambda () (interactive)
+                         (let* ((dedicated-proc-name (python-shell-get-process-name t))
+                                (dedicated-proc-buffer-name (format "*%s*" dedicated-proc-name))
+                                (dedicated-running (comint-check-proc dedicated-proc-buffer-name)))
+                           ;; If there's already a python shell running for this buffer, kill it
+                           (when dedicated-running
+                             (let* ((process (python-shell-get-or-create-process))
+                                    (buffer (process-buffer process)))
+                               (set-process-query-on-exit-flag process nil)
+                               (kill-buffer buffer)))
+                         ;; Send file to Python buffer and switch to shell
                          (python-shell-send-file buffer-file-name)
-                         (python-shell-switch-to-shell)))))
+                         (python-shell-switch-to-shell))))))
 
 ;; Set up PDB debugging. pdb.py isn't in my path, and Emacs PDB mode on Windows needs -u for unbuffered output
 (setq gud-pdb-command-name "python -u -m pdb")
@@ -474,6 +484,20 @@ point."
  
 (setq visible-bell nil)
 (setq ring-bell-function 'my-terminal-visible-bell)
+
+;; Org-present
+(autoload 'org-present "org-present" nil t)
+
+(add-hook 'org-present-mode-hook
+          (lambda ()
+            (org-present-big)
+            (org-display-inline-images)))
+
+(add-hook 'org-present-mode-quit-hook
+          (lambda ()
+            (org-present-small)
+            (org-remove-inline-images)))
+
 
 ;; Final steps: Load local.el if it exists, and then create and switch to buffer *default*.
 ;; Local.el can contain any computer-specific configuration (it's in the .gitignore list).
