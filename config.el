@@ -162,9 +162,9 @@
 (global-set-key [home] 'beginning-of-line) 
 (global-set-key [end] 'end-of-line) 
 (global-set-key [f1] 'toggle-frame-fullscreen) 
-(global-set-key [f2] 'find-matching-file) 
-(global-set-key [f3] 'split-window-horizontally) 
-(global-set-key [f4] 'delete-window) 
+(global-set-key [f2] 'find-matching-file)
+(global-set-key [f3] 'bm-toggle)
+;;(global-set-key [f4] 'neotree-toggle)
 (global-set-key [f5] '[?\C-u ?\M-.])
 (global-set-key [f6] '[?\C-u -?\M-.])
 (global-set-key [f7] 'recompile)
@@ -206,13 +206,20 @@
 (global-font-lock-mode t)
 
 ;; Bookmarks
-;; F2 toggles bookmark at point, SHIFT-F2 clears all bookmarks, ctrl-pagedown/ctrl-pageup jumps next/previous
+;; F3 toggles bookmark at point, SHIFT-F3 clears all bookmarks, ctrl-pagedown/ctrl-pageup jumps next/previous
 (require 'bm)
+
+(defun ask-before-removing-bookmarks ()
+  (interactive)
+  (if (y-or-n-p (format "Are you sure you want to clear all bookmarks? "))
+        (bm-remove-all-all-buffers)
+    (message "Canceled")))
+
 (setq bm-cycle-all-buffers t)
 (setq bm-recenter nil)
 (setq bm-highlight-style 'bm-highlight-line-and-fringe)
-(global-set-key (kbd "<f2>") 'bm-toggle)
-(global-set-key (kbd "S-<f2>") 'bm-remove-all-all-buffers)
+(global-set-key (kbd "<f3>") 'bm-toggle)
+(global-set-key (kbd "S-<f3>") 'ask-before-removing-bookmarks)
 (global-set-key (kbd "C-<next>") 'bm-next)
 (global-set-key (kbd "C-<prior>") 'bm-previous)
 (global-set-key (kbd "C-c b m") 'bm-toggle)
@@ -437,6 +444,15 @@ point."
 
 ;; M-s starts a new shell with a unique name 
 (global-set-key (kbd "M-s") '(lambda () (interactive) (shell (generate-new-buffer (generate-new-buffer-name "*shell*")))))
+
+;; shell-mode uses pcomplete by default; set it to case insensitive
+(setq pcomplete-ignore-case t)
+
+;; neotree
+;; (add-to-list 'load-path (concat elisp-directory "thirdparty/neotree"))
+;; (require 'neotree)
+;; (setq neo-window-width 50)
+;; (global-set-key (kbd "S-<f4>") 'neotree-find)
 
 ;; set up melpa
 (require 'package)
